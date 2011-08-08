@@ -1,4 +1,8 @@
+# PrintJS connector
+
 from os import path as op
+
+import sys
 
 import tornado.web
 import tornadio
@@ -12,7 +16,7 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("www/index.html")
 
-class ChatConnection(tornadio.SocketConnection):
+class PrintConnection(tornadio.SocketConnection):
     # Class level variable
     participants = set()
 
@@ -30,15 +34,24 @@ class ChatConnection(tornadio.SocketConnection):
             p.send("A user has left.")
 
 #use the routes classmethod to build the correct resource
-ChatRouter = tornadio.get_router(ChatConnection)
+PrintRouter = tornadio.get_router(PrintConnection)
+
+settings = { "static_path": op.normpath(op.dirname(__file__) + "/www/static")}
+
+print settings["static_path"]
 
 #configure the Tornado application
 application = tornado.web.Application(
-    [(r"/", IndexHandler), ChatRouter.route()],
+    [(r"/", IndexHandler),
+     (r"/(cube\.stl)", tornado.web.StaticFileHandler,
+     dict(path=settings['static_path'])),
+     
+     PrintRouter.route()],
     enabled_protocols = ['websocket',
                          'flashsocket',
                          'xhr-multipart',
                          'xhr-polling'],
+    static_path = settings["static_path"],                                     
     flash_policy_port = 843,
     flash_policy_file = op.join(ROOT, 'flashpolicy.xml'),
     socket_io_port = 8001
