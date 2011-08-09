@@ -32,17 +32,17 @@ function DNDFileController(id) {
     
     var reader = new FileReader();
     
-    console.log(files[0])
+    //console.log(files[0])
     // Closure to capture the file information.
     reader.onload = (function(theFile) {
       return function(e) {
         // Render stl.
         //console.log(e.target.result.toString());
-        console.log(e.target.result.replace(/^data:base64,/, ''))
+        c//onsole.log(e.target.result.replace(/^data:base64,/, ''))
         //console.log(typeof e.target.result);
         //console.log($.base64Decode(new_string))
         //console.log(theFile.toString())
-        console.log($.base64Decode(e.target.result.replace(/^data:base64,/, '')))
+        //console.log($.base64Decode(e.target.result.replace(/^data:base64,/, '')))
         thingiview.loadSTLString($.base64Decode(e.target.result.replace(/^data:base64,/, '')));
       };
     })(files[0]);
