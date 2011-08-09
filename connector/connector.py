@@ -64,10 +64,17 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("www/index.html")
     def post(self):
-            printer.do_skein("/tmp/cc.stl")
-            broadcast("skeined.  Now printing...")
-            printer.do_print("/tmp/cc_export.gcode")
-            broadcast("print done")
+        broadcast("Got %d bytes in POST" % len(self.request.body))
+            
+        #self.response.headers['Content-Type'] = "text/plain"
+        #self.response.out.write("ok")
+        f = open('/tmp/work.stl', 'wb')
+        f.write(self.request.body)
+        f.close();
+        printer.do_skein("/tmp/work.stl")
+        broadcast("skeined.  Now printing...")
+        printer.do_print("/tmp/work.gcode")
+        broadcast("print done")
 
 # client connection
 class PrintConnection(tornadio.SocketConnection):

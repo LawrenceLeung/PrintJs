@@ -77,10 +77,9 @@
 
 $(document).ready(function() {
   $('#print').click(function() {
-    console.log('printing '+$('#print').data('text'));
-    $.post('/', {text: $('#print').data('text')}, function() {
-      alert('Your model is now printing! Enjoy!');
-    });
+    alert('Your model is now printing! Enjoy!');
+    $.post('/',  $('#print').data('text'), function() {
+        });
   });
 });
   </script>
