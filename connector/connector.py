@@ -2,7 +2,10 @@
 
 from os import path as op
 
-import sys
+
+import printcore, os, sys, glob, time, threading, traceback, StringIO,  traceback, cStringIO,time
+
+import pronsole
 
 import tornado.web
 import tornadio
@@ -11,34 +14,89 @@ import tornadio.server
 
 ROOT = op.normpath(op.dirname(__file__))
 
+initHardware=False
+
+
+# global participants list :(        
+participants = set()    
+PrintRouter=False
+
+def broadcast(message):    
+    for p in participants:
+        p.send(message)         
+    
+
+class PrintController(pronsole.pronsole):
+    def __init__(self):
+        pronsole.pronsole.__init__(self)
+        self.monitor=0
+        self.monitor_interval=3
+        print "printcontroller init "
+        #self.p.connect(self.scanserial()[0],112500)
+        if initHardware:
+            self.p.connect("/dev/cu.usbserial-A400AQFQ",112500)
+
+    def online(self):
+        print "Printer is now online!!"
+    def temp(self):
+        self.do_gettemp(self.tempcb)
+    def recvcb(self,l):
+        if "T:" in l:
+            self.tempreport=l
+        #    wx.CallAfter(self.tempdisp.SetLabel,self.tempreport.strip().replace("ok ",""))
+        tstring=l.rstrip()
+        #print tstring
+        #if(tstring!="ok"):
+        print tstring
+            #wx.CallAfter(self.logbox.AppendText,tstring+"\n")
+        #for i in self.recvlisteners:
+        #    i(l)    
+    def tempcb(self,l):
+        if "T:" in l:
+            temp=l.replace("\r","").replace("T","Hotend").replace("B","Bed").replace("\n","").replace("ok ","")
+        print temp
+        broadcast(temp);
+
+printer = PrintController()
+
 class IndexHandler(tornado.web.RequestHandler):
     """Regular HTTP handler to serve the chatroom page"""
     def get(self):
         self.render("www/index.html")
 
+# client connection
 class PrintConnection(tornadio.SocketConnection):
-    # Class level variable
-    participants = set()
+    
 
     def on_open(self, *args, **kwargs):
-        self.participants.add(self)
-        self.send("Welcome!")
+        participants.add(self)
+        self.send("Connected")
 
     def on_message(self, message):
-        for p in self.participants:
-            p.send(message)
-
+        print "message from client:"+message
+        if message == "temp":
+            broadcast("temp!") 
+        elif message == "print":
+            printer.do_skein("/tmp/cc.stl")
+            broadcast("skeined.  Now printing...")
+            printer.do_print("/tmp/cc_export.gcode")
+        elif message=="stop":
+            if initHardware:
+                printer.do_disconnect("")
+            sys.exit()
+        else:
+            self.send("huh?")
+        
     def on_close(self):
-        self.participants.remove(self)
-        for p in self.participants:
-            p.send("A user has left.")
+        participants.remove(self)
+#        for p in self.participants:
+#            p.send("A user has left.")
 
 #use the routes classmethod to build the correct resource
 PrintRouter = tornadio.get_router(PrintConnection)
 
-settings = { "static_path": op.normpath(op.dirname(__file__) + "/www/static")}
+settings = { "static_path": op.normpath(op.dirname(__file__) + "/www/static") }
 
-print settings["static_path"]
 
 #configure the Tornado application
 application = tornado.web.Application(
