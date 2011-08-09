@@ -38,12 +38,14 @@ function DNDFileController(id) {
       return function(e) {
         // Render stl.
         //console.log(e.target.result.toString());
-        c//onsole.log(e.target.result.replace(/^data:base64,/, ''))
+        //console.log(e.target.result.replace(/^data:base64,/, ''))
         //console.log(typeof e.target.result);
         //console.log($.base64Decode(new_string))
         //console.log(theFile.toString())
         //console.log($.base64Decode(e.target.result.replace(/^data:base64,/, '')))
-        thingiview.loadSTLString($.base64Decode(e.target.result.replace(/^data:base64,/, '')));
+        current_file_data = $.base64Decode(e.target.result.replace(/^data:base64,/, ''));
+        $('#print').data('text', current_file_data);
+        thingiview.loadSTLString(current_file_data);
       };
     })(files[0]);
     

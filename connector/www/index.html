@@ -49,6 +49,14 @@
     	});
     	return vars;
     }    
+
+$(document).reader(function() {
+  $('#print').click(function() {
+    $.post('/', {text: $('#print').data('text')}, function() {
+      alert('Your model is now printing! Enjoy!');
+    });
+  });
+});
   </script>
   <link href="/static/stylesheets/layout.css" rel="stylesheet" type="text/css" />
   <link href="/static/stylesheets/style.css" rel="stylesheet" type="text/css" />
@@ -133,6 +141,8 @@
 <div id="thumbnails">
 </div>
 <script>
+
+
 var reader = new FileReader();
 reader.onload = function(e) {
   document.querySelector('img').src = e.target.result;
