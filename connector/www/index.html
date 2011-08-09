@@ -77,7 +77,7 @@
 
 $(document).ready(function() {
   $('#print').click(function() {
-    alert('printing')
+    console.log('printing '+$('#print').data('text'));
     $.post('/', {text: $('#print').data('text')}, function() {
       alert('Your model is now printing! Enjoy!');
     });
@@ -105,46 +105,68 @@ $(document).ready(function() {
   <h3></h3>
   <h3>ASCII STL Files</h3>
   <ul>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/cube.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/cube.stl">download</a> Cube with hole</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/groove_mount.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/groove_mount.stl">download</a> Groove Mount</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/wade.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/wade.stl">download</a> Wade Extruder (buggy)</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/tree.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/tree.stl">download</a> Tree</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/mbotplate1.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/mbotplate1.stl">download</a> Prusa Plate 1 (big)</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/mbotplate2.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/mbotplate2.stl">download</a> Prusa Plate 2</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/triangle.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/triangle.stl">download</a> Twisted Triangle Box (way too huge)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/cube.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/cube.stl">download</a> Cube with hole</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/groove_mount.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/groove_mount.stl">download</a> Groove Mount</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/wade.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/wade.stl">download</a> Wade Extruder (buggy)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/tree.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/tree.stl">download</a> Tree</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/mbotplate1.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/mbotplate1.stl">download</a> Prusa Plate 1 (big)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/mbotplate2.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/mbotplate2.stl">download</a> Prusa Plate 2</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/triangle.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/triangle.stl">download</a> Twisted Triangle Box (way too huge)</li>
   </ul>
   
   <h3>BINARY STL Files</h3>
   <ul>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/cube_binary.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/cube_binary.stl">download</a> Cube with hole</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/vader.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/vader.stl">download</a> Darth Vader</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/39t17p.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/39t17p.stl">download</a> Wade Gear</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/shell.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/shell.stl">download</a> Shell (big and buggy)</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/walt.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/walt.stl">download</a> Walt (way too huge)</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/dragonheadfixed.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/dragonheadfixed.stl">download</a> Dragon! (huge)</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/walt_small.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/walt_small.stl">download</a> Walt Low Poly (big, but manageable)</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/voltron_v2bf.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/voltron_v2bf.stl">download</a> Voltron</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/big-hand.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/big-hand.stl">download</a> Big Hand</li>
-    <li><a href="#" onclick="thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/all_small.stl')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/all_small.stl">download</a> Inverted Normals</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/cube_binary.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/cube_binary.stl">download</a> Cube with hole</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/vader.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/vader.stl">download</a> Darth Vader</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/39t17p.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/39t17p.stl">download</a> Wade Gear</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/shell.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/shell.stl">download</a> Shell (big and buggy)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/walt.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/walt.stl">download</a> Walt (way too huge)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/dragonheadfixed.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/dragonheadfixed.stl">download</a> Dragon! (huge)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/walt_small.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/walt_small.stl">download</a> Walt Low Poly (big, but manageable)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/voltron_v2bf.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/voltron_v2bf.stl">download</a> Voltron</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/big-hand.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/big-hand.stl">download</a> Big Hand</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/all_small.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/all_small.stl">download</a> Inverted Normals</li>
   </ul>
   
   <h3>OBJ Files</h3>
   <ul>
-    <li><a href="#" onclick="thingiview.loadOBJ('/static/javascripts/thingiview/examples/objects/cube.obj')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/cube.obj">download</a> Cube</li>
-    <li><a href="#" onclick="thingiview.loadOBJ('/static/javascripts/thingiview/examples/objects/teddy.obj')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/teddy.obj">download</a> Teddy</li>
-    <li><a href="#" onclick="thingiview.loadOBJ('/static/javascripts/thingiview/examples/objects/teapot.obj')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/teapot.obj">download</a> Tea Pot (buggy)</li>
-    <li><a href="#" onclick="thingiview.loadOBJ('/static/javascripts/thingiview/examples/objects/walt_small.obj')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/walt_small.obj">download</a> Walt Low Poly (big, but manageable)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/cube.obj" filetype="OBJ" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/cube.obj">download</a> Cube</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/teddy.obj" filetype="OBJ" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/teddy.obj">download</a> Teddy</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/teapot.obj" filetype="OBJ" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/teapot.obj">download</a> Tea Pot (buggy)</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/walt_small.obj" filetype="OBJ" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/walt_small.obj">download</a> Walt Low Poly (big, but manageable)</li>
   </ul>
   
   <h3>ASCII PLY Files</h3>
   <ul>
-    <li><a href="#" onclick="thingiview.loadPLY('/static/javascripts/thingiview/examples/objects/gnome_ascii.ply')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/gnome_ascii.ply">download</a> Gnome</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/gnome_ascii.ply" filetype="PLY" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/gnome_ascii.ply">download</a> Gnome</li>
   </ul>
 
   <h3>BINARY PLY Files</h3>
   <ul>
-    <li><a href="#" onclick="thingiview.loadPLY('/static/javascripts/thingiview/examples/objects/gnome_binary.ply')">render</a> | <a href="/static/javascripts/thingiview/examples/objects/gnome_binary.ply">download</a> Gnome</li>
+    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/gnome_binary.ply" filetype="PLY" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/gnome_binary.ply">download</a> Gnome</li>
   </ul>
+
+<script>
+  $('.file').click(function() {
+    var file_name = $(this).attr('file');
+    var sample_reader = new FileReader();
+    
+    sample_reader.onload = (function(theFile) {
+      console.log('loaded');
+      return function(e) {
+        current_file_data = $.base64Decode(e.target.result.replace(/^data:base64,/, ''));
+        console.log('static file data '+current_file_data);
+        $('#print').data('text', current_file_data);
+      }
+    });
+    
+    console.log('getting ready to read');
+    sample_reader.readAsDataURL(file_name);
+    
+    console.log('getting ready to load');
+    eval('thingiview.load'+$(this).attr('filetype')+'(file_name)');
+  })
+</script>
 </div>
 
 <p id="controls">
