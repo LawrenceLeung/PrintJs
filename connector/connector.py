@@ -40,7 +40,17 @@ class PrintController(pronsole.pronsole):
         print "Printer is now online!!"
     def temp(self):
         self.do_gettemp(self.tempcb)
-        
+    def recvcb(self,l):
+        if "T:" in l:
+            self.tempreport=l
+        #    wx.CallAfter(self.tempdisp.SetLabel,self.tempreport.strip().replace("ok ",""))
+        tstring=l.rstrip()
+        #print tstring
+        #if(tstring!="ok"):
+        print tstring
+            #wx.CallAfter(self.logbox.AppendText,tstring+"\n")
+        #for i in self.recvlisteners:
+        #    i(l)    
     def tempcb(self,l):
         if "T:" in l:
             temp=l.replace("\r","").replace("T","Hotend").replace("B","Bed").replace("\n","").replace("ok ","")
@@ -64,9 +74,19 @@ class PrintConnection(tornadio.SocketConnection):
 
     def on_message(self, message):
         print "message from client:"+message
-        if message=="temp":
-            broadcast("temp!")    
-
+        if message == "temp":
+            broadcast("temp!") 
+        elif message == "print":
+            printer.do_skein("/tmp/cc.stl")
+            broadcast("skeined.  Now printing...")
+            printer.do_print("/tmp/cc_export.gcode")
+        elif message=="stop":
+            if initHardware:
+                printer.do_disconnect("")
+            sys.exit()
+        else:
+            self.send("huh?")
+        
     def on_close(self):
         participants.remove(self)
 #        for p in self.participants:
