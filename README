@@ -1,10 +1,30 @@
+PrintJS: a HTML5/Javascript based prototype 3d printing stack built for Google Kirkland's HTML5 hackathon
 
+Copyright 2011 Lawrence Leung and Justin Ricaurte
 
-Dependencies
+This was a hack to prototype a simplified 3d workflow based on HTML5 where you can drag and drop models into your browser, preview and hit print and it'll send the model to the hardware to print.  With an HTML5 based CAM stack, you can preview and "one click" print directly from web based repositories of 3d models.
+
+In true hackathon style, we clobbled together a number of existing components to make this happen.  This could never have been built in hours with the following open source libraries:
+
+Kliment's Printrun
+Tbuser's Thingiview
+MrDoob's three.js
+Enrique's Skeinforge
+MrJoe's Tornadio
+
+We believe this style of 3dp software will be useful to the community and hope to continue working on it.  As is, it probably works but it lacks a lot of things that would make it really compelling.  A better interface, port of key components like model slicing into JS, and release as a HTML5 webstore app would be a good start.  If you would like to contribute to this application, please contact Lawrence.
+
+The license on this software is GPLv3.
+
+Dependencies you'll probably need to install are:
 
 Python
-wxPython ?
-
-Tornado/Socket IO:
-
+wxPython (temporarily until all the stuff is removed)
+Tornado/Socket.IO:
 https://github.com/MrJoes/tornadio
+
+Mac users will probably want to run python in 32-bit mode.
+
+Run it by running connector.py in the connector directory.  It spins up a Tornado webserver at localhost:8001.  Use Chrome as it's quite demanding and probably doesn't play nicely with other browsers.
+
+Currently it starts up a serial connection to a reprap on a hardcoded port at startup.  (Did we metion this was a hack?)
