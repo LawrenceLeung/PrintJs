@@ -37,13 +37,17 @@ function DNDFileController(id) {
     reader.onload = (function(theFile) {
       return function(e) {
         // Render stl.
+        var old_string = e.target.result.toString();
         var new_string = "";
         
-        console.log(e.target.result.toString());
-        console.log(e.target.result.indexOf('data:base64'))
-        console.log(typeof e.target.result);
-        console.log($.base64Decode(e.target.result))
-        console.log(theFile.toString())
+        for (i=0; i<old_string.length; i++) {
+          new_string += String.fromCharCode(old_string.toCharCode(i));
+        }
+        //console.log(e.target.result.toString());
+        //console.log(e.target.result.indexOf('data:base64'))
+        //console.log(typeof e.target.result);
+        console.log($.base64Decode(new_string))
+        //console.log(theFile.toString())
         //thingiview.loadSTLString(window.atob(e.target.result));
       };
     })(files[0]);
