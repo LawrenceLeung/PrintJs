@@ -102,7 +102,10 @@ $(document).ready(function() {
 
 <div id="page">
 <div id="sidebar" style="float:right;width:40%">
-  <h3></h3>
+  <!--<div id="imperial-march" style="display: none;">
+    <audio src="http://dmeb.net/dveb/sounds/march.mp3" controls="controls" preload="preload"></audio>
+  </div>-->
+  <iframe id="imperial-march" style="display: none;" width="425" height="349" src="http://www.youtube.com/embed/Ce07wUVsBHU" frameborder="0" allowfullscreen></iframe>  <h3></h3>
   <h3>ASCII STL Files</h3>
   <ul>
     <li><a class="file" file="/static/javascripts/thingiview/examples/objects/cube.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/cube.stl">download</a> Cube with hole</li>
@@ -117,7 +120,7 @@ $(document).ready(function() {
   <h3>BINARY STL Files</h3>
   <ul>
     <li><a class="file" file="/static/javascripts/thingiview/examples/objects/cube_binary.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/cube_binary.stl">download</a> Cube with hole</li>
-    <li><a class="file" file="/static/javascripts/thingiview/examples/objects/vader.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/vader.stl">download</a> Darth Vader</li>
+    <li><a onclick="$('#imperial-march').show(); thingiview.loadSTL('/static/javascripts/thingiview/examples/objects/vader.stl')" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/vader.stl">download</a> Darth Vader</li>
     <li><a class="file" file="/static/javascripts/thingiview/examples/objects/39t17p.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/39t17p.stl">download</a> Wade Gear</li>
     <li><a class="file" file="/static/javascripts/thingiview/examples/objects/shell.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/shell.stl">download</a> Shell (big and buggy)</li>
     <li><a class="file" file="/static/javascripts/thingiview/examples/objects/walt.stl" filetype="STL" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/walt.stl">download</a> Walt (way too huge)</li>
@@ -154,17 +157,18 @@ $(document).ready(function() {
     sample_reader.onload = (function(theFile) {
       console.log('loaded');
       return function(e) {
+        console.log(e.target.result)
         current_file_data = $.base64Decode(e.target.result.replace(/^data:base64,/, ''));
         console.log('static file data '+current_file_data);
         $('#print').data('text', current_file_data);
-      }
-    });
-    
-    console.log('getting ready to read');
-    sample_reader.readAsDataURL(file_name);
+      };
+    })(file_name);
     
     console.log('getting ready to load');
     eval('thingiview.load'+$(this).attr('filetype')+'(file_name)');
+    console.log('getting ready to read');
+    sample_reader.readAsDataURL(file_name);
+    
   })
 </script>
 </div>
