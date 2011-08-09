@@ -8,6 +8,9 @@
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
   <script type="text/javascript" src="/static/javascripts/jquery.base64.js"></script>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+   <script src="http://cdn.socket.io/stable/socket.io.js"></script>
+  <script>WEB_SOCKET_SWF_LOCATION = 'http://cdn.socket.io/stable/WebSocketMain.swf';</script>
+  
   <style>
    .chromeFrameInstallDefaultStyle {
      margin-top: 10px;
@@ -40,6 +43,28 @@
         // thingiview.loadSTL("../examples/objects/cube.stl");
         thingiview.loadPLY("/static/javascripts/thingiview/examples/objects/gnome_ascii.ply");
       }
+      
+
+        var s = new io.Socket(window.location.hostname, {port: 8001, rememberTransport: false});
+        s.connect();
+
+        s.addEvent('connect', function() {
+            //s.send('New participant joined');
+        });
+
+        s.addEvent('message', function(data) {
+            $("#chat").append("<div>" + data + "</div>");
+        });
+
+        //send the message when submit is clicked
+        $('#chatform').submit(function (evt) {
+            var line = $('#chatform [type=text]').val()
+            $('#chatform [type=text]').val('')
+            s.send(line);
+            return false;
+        });
+    
+      
     }
     
     function getUrlVars() {
@@ -172,6 +197,18 @@ document.addEventListener('DOMContentLoaded', function(e) {
 </p>
 
 <footer>
+   <p id="chat">
+       
+   </p> 
+    
+   Command line: 
+    
+  <form id="chatform">
+    <input type="text" />
+    <input type="submit" />
+    </form>  
+    
+    
   &larr; <a href="http://github.com/LawrenceLeung">Lawrence Leung</a> and <a href="http://github.com/ricaurte">Justin Ricaurte</a> Google HTML5 Hackathon, Seattle 2011
 </footer>
 

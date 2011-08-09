@@ -63,6 +63,11 @@ class IndexHandler(tornado.web.RequestHandler):
     """Regular HTTP handler to serve the chatroom page"""
     def get(self):
         self.render("www/index.html")
+    def post(self):
+            printer.do_skein("/tmp/cc.stl")
+            broadcast("skeined.  Now printing...")
+            printer.do_print("/tmp/cc_export.gcode")
+            broadcast("print done")
 
 # client connection
 class PrintConnection(tornadio.SocketConnection):
@@ -103,7 +108,6 @@ application = tornado.web.Application(
     [(r"/", IndexHandler),
      (r"/(cube\.stl)", tornado.web.StaticFileHandler,
      dict(path=settings['static_path'])),
-     
      PrintRouter.route()],
     enabled_protocols = ['websocket',
                          'flashsocket',
