@@ -14,12 +14,12 @@ import tornadio.server
 
 ROOT = op.normpath(op.dirname(__file__))
 
-initHardware=False
+initHardware=True
 
 
 # global participants list :(        
 participants = set()    
-PrintRouter=False
+PrintRouter=True
 
 def broadcast(message):    
     for p in participants:
