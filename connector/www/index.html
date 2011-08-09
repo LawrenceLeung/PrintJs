@@ -50,8 +50,9 @@
     	return vars;
     }    
 
-$(document).reader(function() {
+$(document).ready(function() {
   $('#print').click(function() {
+    alert('printing')
     $.post('/', {text: $('#print').data('text')}, function() {
       alert('Your model is now printing! Enjoy!');
     });
