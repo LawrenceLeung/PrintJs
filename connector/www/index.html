@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" class="no-js">
 <head>
-  <title>thingiview Client Side Ajax Examples</title>
+  <title>PrintJS</title>
 
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -12,11 +12,8 @@
   <script>WEB_SOCKET_SWF_LOCATION = 'http://cdn.socket.io/stable/WebSocketMain.swf';</script>
   
   <style>
-   .chromeFrameInstallDefaultStyle {
-     margin-top: 10px;
-     width: 800px;
-     border: 5px solid blue;
-   }
+
+   
   </style>
   
   <script src="/static/javascripts/preso-dnd-lib.js"></script>
@@ -53,7 +50,7 @@
         });
 
         s.addEvent('message', function(data) {
-            $("#chat").append("<div>" + data + "</div>");
+            $("#chat").append($("<div>",{text:data}));
         });
 
         //send the message when submit is clicked
@@ -63,9 +60,7 @@
             s.send(line);
             return false;
         });
-    
-      
-    }
+    };
     
     function getUrlVars() {
     	var vars = {};
@@ -73,7 +68,22 @@
     		vars[key] = value;
     	});
     	return vars;
-    }    
+    }   
+    
+    // model drag and drop support
+    var reader = new FileReader();
+    reader.onload = function(e) {
+     document.querySelector('img').src = e.target.result;
+    };
+    function onDrop(e) {
+     alert('dropped!')
+     reader.readAsDataURL(e.dataTransfer.files[0]);
+    };
+    document.addEventListener('DOMContentLoaded', function(e) {
+     var dndc = new DNDFileController('dropzone');
+    }, false);
+
+     
 
 $(document).ready(function() {
   $('#print').click(function() {
@@ -81,6 +91,36 @@ $(document).ready(function() {
     $.post('/',  $('#print').data('text'), function() {
         });
   });
+  
+   // static urls
+   $('.file').click(function() {
+    var file_name = $(this).attr('file');
+    var sample_reader = new FileReader();
+    
+    sample_reader.onload = (function(theFile) {
+      console.log('loaded');
+      return function(e) {
+        console.log(e.target.result)
+        current_file_data = $.base64Decode(e.target.result.replace(/^data:base64,/, ''));
+        console.log('static file data '+current_file_data);
+        $('#print').data('text', current_file_data);
+      };
+    })(file_name);
+    
+    console.log('getting ready to load');
+    eval('thingiview.load'+$(this).attr('filetype')+'(file_name)');
+    console.log('getting ready to read');
+    sample_reader.readAsDataURL(file_name);
+    $('.video').hide();
+    
+  });
+  
+  
+  $("#enable-debug-pane").click(function(){
+    $("#debug-pane").show();
+    $("#enable-debug-pane").hide();
+  });
+  
 });
   </script>
   <link href="/static/stylesheets/layout.css" rel="stylesheet" type="text/css" />
@@ -101,6 +141,65 @@ $(document).ready(function() {
 
 <div id="page">
 <div id="sidebar" style="float:right;width:40%">
+
+</div>
+
+<p id="controls">
+  <input onclick="thingiview.setCameraView('top');" type="button" value="Top" /> 
+  <input onclick="thingiview.setCameraView('side');" type="button" value="Side" /> 
+  <input onclick="thingiview.setCameraView('bottom');" type="button" value="Bottom" /> 
+  <input onclick="thingiview.setCameraView('diagonal');" type="button" value="Diagonal" /> 
+ 
+  <input onclick="thingiview.setCameraZoom(5);" type="button" value="Zoom +" /> 
+  <input onclick="thingiview.setCameraZoom(-5);" type="button" value="Zoom -" /> 
+ 
+  Rotation: <input onclick="thingiview.setRotation(true);" type="button" value="on" /> | <input onclick="thingiview.setRotation(false);" type="button" value="off" />
+
+  <a href="#" id="print">Print Me</a>
+</p>
+
+<div id="dropzone">
+  <div id="viewer" style="width:70%;height:500px"></div>
+</div>
+<div id="thumbnails">
+</div>
+
+
+<br style='clear:both'/>
+
+<div id="console">
+Command line: 
+
+    <div id="chat">
+    </div>
+    <form id="chatform">
+    <input type="text" />
+    </form>    
+</div> 
+<br style='clear:both'/>
+
+<footer>
+    
+  &larr; <a href="http://github.com/LawrenceLeung">Lawrence Leung</a> and <a href="http://github.com/ricaurte">Justin Ricaurte</a> Google HTML5 Hackathon, Seattle 2011
+</footer>
+
+  
+<a href='javascript:void(0)' id='enable-debug-pane'>Show debug pane</a>
+<div id='debug-pane'>
+
+<p>
+  <input onclick="thingiview.setObjectMaterial('wireframe');" type="button" value="Wireframe" /> 
+  <input onclick="thingiview.setObjectMaterial('solid');" type="button" value="Solid" />
+</p>
+
+<p>
+  Plane: <a href="#" onclick="thingiview.setShowPlane(false)">Hide</a> | <a href="#" onclick="thingiview.setShowPlane(true)">Show</a><br/>
+  Background Color: <a href="#" onclick="thingiview.setBackgroundColor('#606060')">Gray</a> | <a href="#" onclick="thingiview.setBackgroundColor('#ffffff')">White</a> | <a href="#" onclick="thingiview.setBackgroundColor('#000000')">Black</a><br/>
+  Object Color: <a href="#" onclick="thingiview.setObjectColor('#ffffff')">White</a> | <a href="#" onclick="thingiview.setObjectColor('#aa0000')">Red</a> | <a href="#" onclick="thingiview.setObjectColor('#CDFECD')">Green</a> | <a href="#" onclick="thingiview.setObjectColor('#C0D8F0')">Blue</a><br/>
+</p>
+
+
+
   <!--<div id="imperial-march" style="display: none;">
     <audio src="http://dmeb.net/dveb/sounds/march.mp3" controls="controls" preload="preload"></audio>
   </div>-->
@@ -149,95 +248,11 @@ $(document).ready(function() {
     <li><a class="file" file="/static/javascripts/thingiview/examples/objects/gnome_binary.ply" filetype="PLY" href="#">render</a> | <a href="/static/javascripts/thingiview/examples/objects/gnome_binary.ply">download</a> Gnome</li>
   </ul>
 
-<script>
-  $('.file').click(function() {
-    var file_name = $(this).attr('file');
-    var sample_reader = new FileReader();
-    
-    sample_reader.onload = (function(theFile) {
-      console.log('loaded');
-      return function(e) {
-        console.log(e.target.result)
-        current_file_data = $.base64Decode(e.target.result.replace(/^data:base64,/, ''));
-        console.log('static file data '+current_file_data);
-        $('#print').data('text', current_file_data);
-      };
-    })(file_name);
-    
-    console.log('getting ready to load');
-    eval('thingiview.load'+$(this).attr('filetype')+'(file_name)');
-    console.log('getting ready to read');
-    sample_reader.readAsDataURL(file_name);
-    $('.video').hide();
-    
-  })
-</script>
+
+
 </div>
 
-<p id="controls">
-  <input onclick="thingiview.setCameraView('top');" type="button" value="Top" /> 
-  <input onclick="thingiview.setCameraView('side');" type="button" value="Side" /> 
-  <input onclick="thingiview.setCameraView('bottom');" type="button" value="Bottom" /> 
-  <input onclick="thingiview.setCameraView('diagonal');" type="button" value="Diagonal" /> 
- 
-  <input onclick="thingiview.setCameraZoom(5);" type="button" value="Zoom +" /> 
-  <input onclick="thingiview.setCameraZoom(-5);" type="button" value="Zoom -" /> 
- 
-  Rotation: <input onclick="thingiview.setRotation(true);" type="button" value="on" /> | <input onclick="thingiview.setRotation(false);" type="button" value="off" />
 
-  <a href="#" id="print">Print Me</a>
-</p>
-
-<div id="dropzone">
-  <div id="viewer" style="width:50%;height:400px"></div>
-</div>
-<div id="thumbnails">
-</div>
-<script>
-
-
-var reader = new FileReader();
-reader.onload = function(e) {
-  document.querySelector('img').src = e.target.result;
-};
-
-function onDrop(e) {
-  alert('dropped!')
-  reader.readAsDataURL(e.dataTransfer.files[0]);
-};
-
-document.addEventListener('DOMContentLoaded', function(e) {
-  var dndc = new DNDFileController('dropzone');
-}, false);
-
-</script> 
-
-<p>
-  <input onclick="thingiview.setObjectMaterial('wireframe');" type="button" value="Wireframe" /> 
-  <input onclick="thingiview.setObjectMaterial('solid');" type="button" value="Solid" />
-</p>
-
-<p>
-  Plane: <a href="#" onclick="thingiview.setShowPlane(false)">Hide</a> | <a href="#" onclick="thingiview.setShowPlane(true)">Show</a><br/>
-  Background Color: <a href="#" onclick="thingiview.setBackgroundColor('#606060')">Gray</a> | <a href="#" onclick="thingiview.setBackgroundColor('#ffffff')">White</a> | <a href="#" onclick="thingiview.setBackgroundColor('#000000')">Black</a><br/>
-  Object Color: <a href="#" onclick="thingiview.setObjectColor('#ffffff')">White</a> | <a href="#" onclick="thingiview.setObjectColor('#aa0000')">Red</a> | <a href="#" onclick="thingiview.setObjectColor('#CDFECD')">Green</a> | <a href="#" onclick="thingiview.setObjectColor('#C0D8F0')">Blue</a><br/>
-</p>
-
-<footer>
-   <p id="chat">
-       
-   </p> 
-    
-   Command line: 
-    
-  <form id="chatform">
-    <input type="text" />
-    <input type="submit" />
-    </form>  
-    
-    
-  &larr; <a href="http://github.com/LawrenceLeung">Lawrence Leung</a> and <a href="http://github.com/ricaurte">Justin Ricaurte</a> Google HTML5 Hackathon, Seattle 2011
-</footer>
 
 </div><!-- end div#page -->
 </body>

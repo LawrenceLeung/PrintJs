@@ -19,7 +19,6 @@ The license on this software is GPLv3.
 Dependencies you'll probably need to install are:
 
 Python
-wxPython (temporarily until all the stuff is removed)
 Tornado/Socket.IO:
 https://github.com/MrJoes/tornadio
 

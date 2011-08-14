@@ -1,7 +1,7 @@
 
 #page {
-  margin: 20px auto;
-  width: 1050px;
+  width: 100%;
+  overflow:hidden;
 }
 
 body {
@@ -94,3 +94,32 @@ input {
 #viewer {
   margin: 10px 0;
 }
+
+
+   .chromeFrameInstallDefaultStyle {
+     margin-top: 10px;
+     width: 800px;
+     border: 5px solid blue;
+   }
+   
+   
+   #console {
+      height:120px;
+      width:100%;
+      display:block;
+      border:1px solid white;
+      background-color: gray;
+   }
+   #chat{     
+      overflow-y:scroll;overflow-x:auto;
+      height:70px;
+      border:1px solid white;
+
+   }   
+   #chatform input {
+     width:90%;
+   }
+   
+   #debug-pane{
+    display:none
+   }
