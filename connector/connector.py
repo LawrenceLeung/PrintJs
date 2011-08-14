@@ -127,7 +127,8 @@ application = tornado.web.Application(
     static_path = settings["static_path"],                                     
     flash_policy_port = 843,
     flash_policy_file = op.join(ROOT, 'flashpolicy.xml'),
-    socket_io_port = 8001
+    socket_io_port = 8001,
+    debug=True
 )
 
 if __name__ == "__main__":
