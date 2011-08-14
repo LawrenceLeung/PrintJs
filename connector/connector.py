@@ -3,7 +3,7 @@
 from os import path as op
 
 
-import printcore, os, sys, glob, time, threading, traceback, StringIO,  traceback, cStringIO,time
+import printcore, os, sys, glob, time, threading, traceback, StringIO,  traceback, cStringIO,time, re
 
 import pronsole
 
@@ -14,7 +14,7 @@ import tornadio.server
 
 ROOT = op.normpath(op.dirname(__file__))
 
-initHardware=True
+initHardware=False
 
 
 # global participants list :(        
@@ -38,19 +38,20 @@ class PrintController(pronsole.pronsole):
 
     def online(self):
         print "Printer is now online!!"
+        
+    def send(self,message):
+        print "sending "+message
+        self.p.send_now(message)
     def temp(self):
         self.do_gettemp(self.tempcb)
     def recvcb(self,l):
         if "T:" in l:
             self.tempreport=l
-        #    wx.CallAfter(self.tempdisp.SetLabel,self.tempreport.strip().replace("ok ",""))
         tstring=l.rstrip()
-        #print tstring
-        #if(tstring!="ok"):
-        print tstring
-            #wx.CallAfter(self.logbox.AppendText,tstring+"\n")
-        #for i in self.recvlisteners:
-        #    i(l)    
+        print "Printer:" + tstring
+        # send the printer's output to all clients unless it's just an ok
+        if (tstring!="ok"):
+            broadcast("printer:"+ tstring)    
     def tempcb(self,l):
         if "T:" in l:
             temp=l.replace("\r","").replace("T","Hotend").replace("B","Bed").replace("\n","").replace("ok ","")
@@ -97,7 +98,10 @@ class PrintConnection(tornadio.SocketConnection):
                 printer.do_disconnect("")
             sys.exit()
         else:
-            self.send("huh?")
+            if re.match(r"[G|M].*", message):
+                printer.send(message)
+            else:
+                self.send("huh?")
         
     def on_close(self):
         participants.remove(self)
