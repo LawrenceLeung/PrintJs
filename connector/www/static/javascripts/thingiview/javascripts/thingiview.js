@@ -353,7 +353,7 @@ Thingiview = function(containerId) {
       }
 
     	renderer.render(scene, camera);
-      // stats.update();
+       //stats.update();
     }
   }
 
@@ -374,13 +374,11 @@ Thingiview = function(containerId) {
       if (scene && !plane) {
         loadPlaneGeometry();
       }
-      plane.material[0].opacity = 1;
-      // plane.updateMatrix();
     } else {
       if (scene && plane) {
         // alert(plane.material[0].opacity);
-        plane.material[0].opacity = 0;
-        // plane.updateMatrix();
+        scene.removeObject(plane);
+        plane=null;
       }
     }
     
@@ -779,7 +777,7 @@ var STLGeometry = function(stlArray) {
   // log("computing normals...");
   // this.computeNormals();
 	this.computeFaceNormals();
-	this.sortFacesByMaterial();
+	//this.sortFacesByMaterial();
   // log("finished building geometry");
 
   scope.min_x = 0;
