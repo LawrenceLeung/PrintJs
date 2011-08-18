@@ -37,8 +37,8 @@
       if (getUrlVars()["stl"]) {
         thingiview.loadSTL(getUrlVars()["stl"]);
       } else {
-        // thingiview.loadSTL("../examples/objects/cube.stl");
-        thingiview.loadPLY("/static/javascripts/thingiview/examples/objects/gnome_ascii.ply");
+      // default obj?
+      //   thingiview.loadSTL("../examples/objects/cube.stl");
       }
       
 
@@ -76,7 +76,6 @@
      document.querySelector('img').src = e.target.result;
     };
     function onDrop(e) {
-     alert('dropped!')
      reader.readAsDataURL(e.dataTransfer.files[0]);
     };
     document.addEventListener('DOMContentLoaded', function(e) {
