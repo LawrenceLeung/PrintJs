@@ -3,19 +3,19 @@
  * based on http://papervision3d.googlecode.com/svn/trunk/as3/trunk/src/org/papervision3d/objects/primitives/Plane.as
  */
 
-var Plane = function ( width, height, segments_width, segments_height ) {
+var Plane = function ( xSize, ySize, xSegments, ySegments ) {
 
 	THREE.Geometry.call( this );
 
 	var ix, iy,
-	width_half = width / 2,
-	height_half = height / 2,
-	gridX = segments_width || 1,
-	gridY = segments_height || 1,
+	width_half = xSize / 2,
+	height_half = ySize / 2,
+	gridX = xSegments || 1,
+	gridY = ySegments || 1,
 	gridX1 = gridX + 1,
 	gridY1 = gridY + 1,
-	segment_width = width / gridX,
-	segment_height = height / gridY;
+	segment_width = xSize / gridX,
+	segment_height = ySize / gridY;
 
 
 	for( iy = 0; iy < gridY1; iy++ ) {
