@@ -8,21 +8,35 @@ Thingiview = function(containerId) {
   var camera   = null;
   var scene    = null;
   var renderer = null;
-  var object   = null;
+  var object   = null ;
   var plane    = null;
   
   var ambientLight     = null;
   var directionalLight = null;
   var pointLight       = null;
   
-  var targetXRotation             = 0;
-  var targetXRotationOnMouseDown  = 0;
+  // polar coordinates of the camera relative to the center of the geometry
+  var cameraPolar={r:55,zenith:45,angle:0};
+  
+  // target rotation in polar
+  var targetRotation={angle:0,zenith:45};
+  
+  // control tuning
+  var zoomPercent=.05,
+  	  mouseAngleRotationStep=0.005,
+  	  mouseZenithRotationStep=0.005;
+  
+  
+  var cameraRotationOnMouseDown,
+  	  cameraDistanceOnMouseDown;
   var mouseX                      = 0;
   var mouseXOnMouseDown           = 0;
 
-  var targetYRotation             = 0;
-  var targetYRotationOnMouseDown  = 0;
-  var mouseY                      = 0;
+  // deprecated
+  var targetXRotation             = 0;
+   var targetYRotation             = 0;
+  
+   var mouseY                      = 0;
   var mouseYOnMouseDown           = 0;
 
   var mouseDown                  = false;
@@ -51,6 +65,16 @@ Thingiview = function(containerId) {
   var showPlane = true;
   var isWebGl = false;
 
+  // convert polar to cartesian
+  // takes hash with r,angle,zenith
+  // returns a hash with x,y,z
+  function polarToCartesian(pol){
+	  return { x: 1.0*pol.r*Math.sin(pol.zenith)*Math.cos(pol.angle),
+		  		y: 1.0*pol.r*Math.sin(pol.zenith)*Math.sin(pol.angle), 
+		  		z: 1.0*pol.r*Math.cos(pol.zenith) };
+  }
+  
+  
   if (document.defaultView && document.defaultView.getComputedStyle) {
     var width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
     var height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));  
@@ -197,11 +221,11 @@ Thingiview = function(containerId) {
     }
 
     if (rolled > 0) {
-      // up
-      scope.setCameraZoom(+10);
+      // zoom in
+      cameraPolar.r=cameraPolar.r*(1.0-zoomPercent);
     } else {
-      // down
-      scope.setCameraZoom(-10);
+      // zoom out
+      cameraPolar.r=cameraPolar.r*(1.0+zoomPercent);
     }
   }
 
@@ -209,9 +233,10 @@ Thingiview = function(containerId) {
     event.preventDefault();
 
     if (event.scale > 1) {
-      scope.setCameraZoom(+5);
+        cameraPolar.r=cameraPolar.r*(1.0+zoomPercent);
+
     } else {
-      scope.setCameraZoom(-5);
+      cameraPolar.r=cameraPolar.r*(1.0-zoomPercent);
     }
   }
 
@@ -225,8 +250,6 @@ Thingiview = function(containerId) {
   }
 
   onRendererMouseDown = function(event) {
-    // log("down");
-
     event.preventDefault();
   	mouseDown = true;
     
@@ -240,24 +263,21 @@ Thingiview = function(containerId) {
   	mouseXOnMouseDown = event.clientX - windowHalfX;
   	mouseYOnMouseDown = event.clientY - windowHalfY;
 
-  	targetXRotationOnMouseDown = targetXRotation;
-  	targetYRotationOnMouseDown = targetYRotation;
+  	cameraRotationOnMouseDown={angle:cameraPolar.angle,zenith:cameraPolar.zenith};
   }
 
   onRendererMouseMove = function(event) {
-    // log("move");
 
     if (mouseDown) {
-  	  mouseX = event.clientX - windowHalfX;
-      // targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
-  	  xrot = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
-
-  	  mouseY = event.clientY - windowHalfY;
-      // targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
-  	  yrot = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
+  	  var mouseX = event.clientX - windowHalfX,
+  	  	arot = (mouseX - mouseXOnMouseDown) * mouseAngleRotationStep,
+  	    mouseY = event.clientY - windowHalfY,
+  	    zrot = (mouseY - mouseYOnMouseDown) * mouseZenithRotationStep;
   	  
-  	  targetXRotation = xrot;
-  	  targetYRotation = yrot;
+  	  cameraPolar.angle=(cameraRotationOnMouseDown.angle-arot)%360;
+  	  
+  	  // todo: roll over
+  	  cameraPolar.zenith=(cameraRotationOnMouseDown.zenith-zrot)%180;	  
 	  }
   }
 
@@ -283,9 +303,8 @@ Thingiview = function(containerId) {
     mouseOver = false;
   }
 
+ 
   onRendererTouchStart = function(event) {
-    targetXRotation = object.rotation.z;
-    targetYRotation = object.rotation.x;
 
     timer = setInterval(sceneLoop, 1000/60);
 
@@ -293,10 +312,7 @@ Thingiview = function(containerId) {
   		event.preventDefault();
 
   		mouseXOnMouseDown = event.touches[0].pageX - windowHalfX;
-  		targetXRotationOnMouseDown = targetXRotation;
-
   		mouseYOnMouseDown = event.touches[0].pageY - windowHalfY;
-  		targetYRotationOnMouseDown = targetYRotation;
   	}
   }
 
@@ -307,44 +323,33 @@ Thingiview = function(containerId) {
     // targetYRotation = object.rotation.x;
   }
 
+  // TODO!
   onRendererTouchMove = function(event) {
   	if (event.touches.length == 1) {
   		event.preventDefault();
 
   		mouseX = event.touches[0].pageX - windowHalfX;
-  		targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
+  		//targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
 
   		mouseY = event.touches[0].pageY - windowHalfY;
-  		targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.05;
+  		//targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.05;
   	}
   }
 
   sceneLoop = function() {
     if (object) {
-      // if (view == 'bottom') {
-      //   if (showPlane) {
-      //     plane.rotation.z = object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
-      //   } else {
-      //     object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
-      //   }
-      // } else {
-      //   if (showPlane) {
-      //     plane.rotation.z = object.rotation.z += (targetRotation - object.rotation.z) * 0.05;
-      //   } else {
-      //     object.rotation.z += (targetRotation - object.rotation.z) * 0.05;
-      //   }
-      // }
 
-      if (showPlane) {
-        plane.rotation.z = object.rotation.z = (targetXRotation - object.rotation.z) * 0.2;
-        plane.rotation.x = object.rotation.x = (targetYRotation - object.rotation.x) * 0.2;
-      } else {
-        object.rotation.z = (targetXRotation - object.rotation.z) * 0.2;
-        object.rotation.x = (targetYRotation - object.rotation.x) * 0.2;
-      }
 
-      // log(object.rotation.x);
+      var camPos=polarToCartesian(cameraPolar);
+      
+      camera.position.x=camPos.x;
+      camera.position.y=camPos.y;
+      camera.position.z=camPos.z;
+      camera.up.z=camPos.z+5;
+      camera.up.y=camPos.y;
+      camera.up.x=camPos.x;
 
+      
       camera.updateMatrix();
       object.updateMatrix();
       
@@ -358,8 +363,8 @@ Thingiview = function(containerId) {
   }
 
   rotateLoop = function() {
-    // targetRotation += 0.01;
-    targetXRotation += 0.05;
+    cameraPolar.angle=(cameraPolar.angle+.01)%360;
+
     sceneLoop();
   }
 
@@ -417,8 +422,8 @@ Thingiview = function(containerId) {
   this.setCameraView = function(dir) {
     cameraView = dir;
 
-    targetXRotation       = 0;
-    targetYRotation       = 0;
+    targetAngleRotation       = 0;
+    targetZenithRotation       = 0;
 
     if (object) {
       object.rotation.x = 0;
@@ -571,15 +576,20 @@ Thingiview = function(containerId) {
       camera.target.position.x = geometry.center_x;
       camera.target.position.y = geometry.center_y;
       camera.target.position.z = geometry.center_z;
-
+      
+      
+      
       // set camera position to center of sphere
-      camera.position.x = geometry.center_x;
-      camera.position.y = geometry.center_y;
-      camera.position.z = geometry.center_z;
+  //    camera.position.x = geometry.center_x;
+  //    camera.position.y = geometry.center_y;
+  //    camera.position.z = geometry.center_z;
 
       // find distance to center
       distance = geometry.boundingSphere.radius / Math.sin((camera.fov/2) * (Math.PI / 180));
 
+      
+      cameraPolar.r=distance*2.0;
+      
       // zoom backwards about half that distance, I don't think I'm doing the math or backwards vector calculation correctly?
       // scope.setCameraZoom(-distance/1.8);
       // scope.setCameraZoom(-distance/1.5);
@@ -694,7 +704,7 @@ Thingiview = function(containerId) {
 
   function loadPlaneGeometry() {
     // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines in canvas renderer...
-    plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
+    plane = new THREE.Mesh(new Plane(200, 100, 20, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
     scene.addObject(plane);
   }
 
@@ -717,10 +727,9 @@ Thingiview = function(containerId) {
 
       // scene.removeObject(object);      
 
+      // don't remove old object
       if (object) {
-        // shouldn't be needed, but this fixes a bug with webgl not removing previous object when loading a new one dynamically
-        object.materials = [new THREE.MeshBasicMaterial({color:0xffffff, opacity:0})];
-        scene.removeObject(object);        
+//        scene.removeObject(object);        
         // object.geometry = geometry;
         // object.materials = [material];
       }
@@ -774,11 +783,7 @@ var STLGeometry = function(stlArray) {
 
   // log("computing centroids...");
   this.computeCentroids();
-  // log("computing normals...");
-  // this.computeNormals();
 	this.computeFaceNormals();
-	//this.sortFacesByMaterial();
-  // log("finished building geometry");
 
   scope.min_x = 0;
   scope.min_y = 0;
