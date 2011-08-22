@@ -199,59 +199,46 @@ Thingiloader = function(event) {
 
   // build stl's vertex and face arrays
   this.ParseSTLString = function(STLString) {
-    var vertexes  = [];
-    var faces     = [];
+    var OriginalSTLString = STLString;
+    
+    /* Justin's code */
+    var new_start = new Date().getTime();
+    
+    var new_vertexes  = [];
+    var new_faces     = [];
   
-    var face_vertexes = [];
-    var vert_hash = {}
-
-    // console.log(STLString);
-
-    // strip out extraneous stuff
-    STLString = STLString.replace(/\r/, "\n");
-    STLString = STLString.replace(/^solid[^\n]*/, "");
-    STLString = STLString.replace(/\n/g, " ");
-    STLString = STLString.replace(/facet normal /g,"");
-    STLString = STLString.replace(/outer loop/g,"");  
-    STLString = STLString.replace(/vertex /g,"");
-    STLString = STLString.replace(/endloop/g,"");
-    STLString = STLString.replace(/endfacet/g,"");
-    STLString = STLString.replace(/endsolid[^\n]*/, "");
-    STLString = STLString.replace(/\s+/g, " ");
-    STLString = STLString.replace(/^\s+/, "");
-
-    // console.log(STLString);
-
-    var facet_count = 0;
-    var block_start = 0;
-
-    var points = STLString.split(" ");
-
-    workerFacadeMessage({'status':'message', 'content':'Parsing vertices...'});
-    for (var i=0; i<points.length/12-1; i++) {
-      if ((i % 100) == 0) {
-        workerFacadeMessage({'status':'progress', 'content':parseInt(i / (points.length/12-1) * 100) + '%'});
-      }
+    /*var new_face_vertexes = [];*/
+    var new_vert_hash = {}
     
-      var face_indices = [];
+    var new_regex = /vertex[\s]+(-?[0-9]*.[0-9]*)[\s]*(-?[0-9]*.[0-9]*)[\s]*(-?[0-9]*.[0-9]*)/g
+    
+    var new_facet_count = 0;
+    var new_block_start = 0;
+    
+    var stl_match = new_regex.exec(OriginalSTLString)
+    
+    while (stl_match) {
+      var new_face_indices = [];
       for (var x=0; x<3; x++) {
-        var vertex = [parseFloat(points[block_start+x*3+3]), parseFloat(points[block_start+x*3+4]), parseFloat(points[block_start+x*3+5])];
-
-        var vertexIndex = vert_hash[vertex];
+        var vertex = [parseFloat(stl_match[1]), parseFloat(stl_match[2]), parseFloat(stl_match[3])];
+        
+        var vertexIndex = new_vert_hash[vertex];
         if (vertexIndex == null) {
-          vertexIndex = vertexes.length;
-          vertexes.push(vertex);
-          vert_hash[vertex] = vertexIndex;
+          vertexIndex = new_vertexes.length;
+          new_vertexes.push(vertex);
+          new_vert_hash[vertex] = vertexIndex;
         }
-
-        face_indices.push(vertexIndex);
+  
+        new_face_indices.push(vertexIndex);
+        stl_match = new_regex.exec(OriginalSTLString)
       }
-      faces.push(face_indices);
-    
-      block_start = block_start + 12;
+      new_faces.push(new_face_indices);
     }
-
-    return [vertexes, faces];
+    
+    var new_end = new Date().getTime();
+    workerFacadeMessage({'status':'message', 'content':'elapsed time (ms) new: '+(new_end-new_start)}); 
+    
+    return [new_vertexes, new_faces];
   };
 
   this.ParseOBJString = function(OBJString) {
