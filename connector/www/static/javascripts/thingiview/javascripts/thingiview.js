@@ -65,6 +65,8 @@ Thingiview = function(containerId) {
   var objectColor = 0xffffff;
   var showPlane = true;
   var isWebGl = false;
+  
+  var axis;
 
   // convert polar to cartesian
   // takes hash with r,angle,zenith
@@ -137,6 +139,7 @@ Thingiview = function(containerId) {
     alertBox.style.zIndex = 100;
     container.appendChild(alertBox);
     
+    loadAxes();
     // load a blank object
     // this.loadSTLString('');
 
@@ -663,6 +666,27 @@ Thingiview = function(containerId) {
     alertBox.style.display = 'block';
     
     // log(msg);
+  }
+  
+  function loadAxes(size){
+	var size=size||50;
+    axes={x: new THREE.Mesh( new THREE.CylinderGeometry( 6, .5, .5, size, 0, 0 ), new THREE.MeshBasicMaterial( { color: 0x993333 } ) ),
+          y: new THREE.Mesh( new THREE.CylinderGeometry( 6, .5, .5, size, 0, 0 ), new THREE.MeshBasicMaterial( { color: 0x339933 } ) ),
+    	  z: new THREE.Mesh( new THREE.CylinderGeometry( 6, .5, .5, size, 0, 0 ), new THREE.MeshBasicMaterial( { color: 0x333399 } ) ),        	
+          };
+    
+    axes.x.rotation.y=Math.PI/2.0;
+    axes.x.translateX(size/2.0);    
+    axes.y.rotation.x=Math.PI/2.0;
+    axes.y.translateY(size/2.0);
+    axes.z.position.z=size/2.0;
+    
+    // TODO: combine?
+    scene.addObject(axes.x);
+    scene.addObject(axes.y);
+    scene.addObject(axes.z);
+    
+    
   }
 
   function loadPlaneGeometry() {
