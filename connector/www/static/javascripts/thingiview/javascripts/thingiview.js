@@ -345,13 +345,14 @@ Thingiview = function(containerId) {
       camera.position.x=camPos.x;
       camera.position.y=camPos.y;
       camera.position.z=camPos.z;
-      camera.up.z=camPos.z+5;
-      camera.up.y=camPos.y;
-      camera.up.x=camPos.x;
-
       
+      
+      var toObject=object.position.subSelf(camera.position);
+      
+      var toLeft=new THREE.Vector3(-toObject.y,toObject.x,0);
+      // generate the cam up vector!
+      camera.up=toObject.crossSelf(toLeft).normalize();
       camera.updateMatrix();
-      object.updateMatrix();
       
       if (showPlane) {
         plane.updateMatrix();
