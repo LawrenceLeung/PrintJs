@@ -16,7 +16,7 @@ Thingiview = function(containerId) {
   var pointLight       = null;
   
   // polar coordinates of the camera relative to the center of the geometry.  Note: Angles in radians
-  var cameraPolar={r:55,zenith:45,angle:0};
+  var cameraPolar={r:55,zenith:Math.PI*.3,angle:0};
   
   // target rotation in polar
   var targetRotation={angle:0,zenith:45};
@@ -559,11 +559,11 @@ Thingiview = function(containerId) {
       scope.setCameraZoom(-distance/1.9);
 
       directionalLight.position.x = geometry.min_y * 2;
-      directionalLight.position.y = geometry.min_y * 2;
-      directionalLight.position.z = geometry.max_z * 2;
+      directionalLight.position.y = -geometry.min_y * 2;
+      directionalLight.position.z = geometry.max_z;
 
-      pointLight.position.x = geometry.center_y;
-      pointLight.position.y = geometry.center_y;
+      pointLight.position.x = geometry.center_x;
+      pointLight.position.y = geometry.max_y*1.5;
       pointLight.position.z = geometry.max_z * 2;
     } else {
       // set to any valid position so it doesn't fail before geometry is available
