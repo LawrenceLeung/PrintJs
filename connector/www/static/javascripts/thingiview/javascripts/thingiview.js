@@ -15,7 +15,7 @@ Thingiview = function(containerId) {
   var directionalLight = null;
   var pointLight       = null;
   
-  // polar coordinates of the camera relative to the center of the geometry
+  // polar coordinates of the camera relative to the center of the geometry.  Note: Angles in radians
   var cameraPolar={r:55,zenith:45,angle:0};
   
   // target rotation in polar
@@ -275,10 +275,10 @@ Thingiview = function(containerId) {
   	    mouseY = event.clientY - windowHalfY,
   	    zrot = (mouseY - mouseYOnMouseDown) * mouseZenithRotationStep;
   	  
-  	  cameraPolar.angle=(cameraRotationOnMouseDown.angle-arot)%360;
+  	  cameraPolar.angle=cameraRotationOnMouseDown.angle-arot;
   	  
   	  // todo: roll over
-  	  cameraPolar.zenith=(cameraRotationOnMouseDown.zenith-zrot)%180;	  
+  	  cameraPolar.zenith=cameraRotationOnMouseDown.zenith-zrot; 
 	  }
   }
 
@@ -339,14 +339,13 @@ Thingiview = function(containerId) {
 
   sceneLoop = function() {
     if (object) {
-
+      // angle clipping.  Todo: optimize
+      cameraPolar.angle=cameraPolar.angle%(2.0*Math.PI);
+      cameraPolar.zenith=Math.min(Math.max(cameraPolar.zenith,0.001),Math.PI);	 
 
       var camPos=polarToCartesian(cameraPolar);
       
-      camera.position.x=camPos.x;
-      camera.position.y=camPos.y;
-      camera.position.z=camPos.z;
-      
+      camera.position.set(camPos.x,camPos.y,camPos.z);
       
       var toObject=object.position.subSelf(camera.position);
       
@@ -354,6 +353,7 @@ Thingiview = function(containerId) {
       // generate the cam up vector!
       camera.up=toObject.crossSelf(toLeft).normalize();
       camera.updateMatrix();
+      object.updateMatrix();
       
       if (showPlane) {
         plane.updateMatrix();
@@ -365,8 +365,7 @@ Thingiview = function(containerId) {
   }
 
   rotateLoop = function() {
-    cameraPolar.angle=(cameraPolar.angle+rotationAnglePerLoop)%360;
-
+    cameraPolar.angle=cameraPolar.angle+rotationAnglePerLoop;
     sceneLoop();
   }
 
@@ -423,41 +422,23 @@ Thingiview = function(containerId) {
 
   this.setCameraView = function(dir) {
     cameraView = dir;
-
-    targetAngleRotation       = 0;
-    targetZenithRotation       = 0;
-
-    if (object) {
-      object.rotation.x = 0;
-      object.rotation.y = 0;
-      object.rotation.z = 0;
-    }
-
-    if (showPlane && object) {
-      plane.rotation.x = object.rotation.x;
-      plane.rotation.y = object.rotation.y;
-      plane.rotation.z = object.rotation.z;
-    }
     
     if (dir == 'top') {
-      // camera.position.y = 0;
-      // camera.position.z = 100;
-      // camera.target.position.z = 0;
+      cameraPolar.zenith=.01;
+      this.setRotation(false);
       if (showPlane) {
         plane.flipSided = false;
       }
     } else if (dir == 'side') {
-      // camera.position.y = -70;
-      // camera.position.z = 70;
-      // camera.target.position.z = 0;
-      targetYRotation = -4.5;
+      cameraPolar.angle=0;
+      cameraPolar.zenith=Math.PI/2.0;
+      this.setRotation(false);
+      
       if (showPlane) {
         plane.flipSided = false;
       }
     } else if (dir == 'bottom') {
-      // camera.position.y = 0;
-      // camera.position.z = -100;
-      // camera.target.position.z = 0;
+        cameraPolar.zenith=Math.PI-.01;
       if (showPlane) {
         plane.flipSided = true;
       }
@@ -470,41 +451,21 @@ Thingiview = function(containerId) {
       }
     }
 
-    mouseX            = targetXRotation;
-    mouseXOnMouseDown = targetXRotation;
     
-    mouseY            = targetYRotation;
-    mouseYOnMouseDown = targetYRotation;
-    
-    scope.centerCamera();
+    //scope.centerCamera();
     
     sceneLoop();
+  }
+  
+  // get the polar coordinates of the camera relative to obj
+  this.cameraAngle=function(){
+	  return cameraPolar;
   }
 
   this.setCameraZoom = function(factor) {
     cameraZoom = factor;
     
-    if (cameraView == 'bottom') {
-      if (camera.position.z + factor > 0) {
-        factor = 0;
-      }
-    } else {
-      if (camera.position.z - factor < 0) {
-        factor = 0;
-      }
-    }
     
-    if (cameraView == 'top') {
-      camera.position.z -= factor;
-    } else if (cameraView == 'bottom') {
-      camera.position.z += factor;
-    } else if (cameraView == 'side') {
-      camera.position.y += factor;
-      camera.position.z -= factor;
-    } else {
-      camera.position.y += factor;
-      camera.position.z -= factor;
-    }
 
     sceneLoop();
   }
