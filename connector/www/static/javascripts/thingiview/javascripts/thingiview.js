@@ -24,7 +24,8 @@ Thingiview = function(containerId) {
   // control tuning
   var zoomPercent=.05,
   	  mouseAngleRotationStep=0.005,
-  	  mouseZenithRotationStep=0.005;
+  	  mouseZenithRotationStep=0.005,
+  	  rotationAnglePerLoop=0.001;
   
   
   var cameraRotationOnMouseDown,
@@ -364,7 +365,7 @@ Thingiview = function(containerId) {
   }
 
   rotateLoop = function() {
-    cameraPolar.angle=(cameraPolar.angle+.01)%360;
+    cameraPolar.angle=(cameraPolar.angle+rotationAnglePerLoop)%360;
 
     sceneLoop();
   }
