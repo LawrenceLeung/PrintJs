@@ -9,7 +9,7 @@ Thingiview = function(containerId) {
   var scene    = null;
   var renderer = null;
   var projector = new THREE.Projector();
-  var object   = null ;
+  var objects   = [] ;
   var plane    = null;
   
   var ambientLight     = null;
@@ -297,8 +297,8 @@ Thingiview = function(containerId) {
         	var ray =rayFromMouseEvent(event);
         	var intersects=ray.intersectObject(plane);
     		if (intersects.length>0){
-    			object.position.x=intersects[0].point.x;
-    			object.position.y=intersects[0].point.y;
+    			selectedObject.position.x=intersects[0].point.x;
+    			selectedObject.position.y=intersects[0].point.y;
     		}
     		
     		
@@ -316,12 +316,13 @@ Thingiview = function(containerId) {
      } else {
 		// highlight
     	var ray =rayFromMouseEvent(event);
-		var intersects = ray.intersectObject( object );
+    	var intersects = ray.intersectObjects( objects );
 		if (intersects.length>0){
-			scope.selectObject(object);
+				scope.selectObject(intersects[0].object);
 		} else {
-			scope.selectObject(null);
+				scope.selectObject(null);
 		}
+    	
 	  }
   }
 
@@ -381,7 +382,7 @@ Thingiview = function(containerId) {
   }
 
   sceneLoop = function() {
-    if (object) {
+    if (objects.length>0) {
       // angle clipping.  Todo: optimize
       cameraPolar.angle=cameraPolar.angle%(2.0*Math.PI);
       cameraPolar.zenith=Math.min(Math.max(cameraPolar.zenith,0.001),Math.PI);	 
@@ -602,13 +603,13 @@ Thingiview = function(containerId) {
       // scope.setCameraZoom(-distance/1.5);
       scope.setCameraZoom(-distance/1.9);
 
-      directionalLight.position.x = object.position.x+geometry.min_y * 2;
-      directionalLight.position.y = object.position.y-geometry.min_y * 2;
+      directionalLight.position.x = 0;
+      directionalLight.position.y = 0;
       directionalLight.position.z = object.position.z+geometry.max_z;
 
-      pointLight.position.x = object.position.x+geometry.center_x;
-      pointLight.position.y = object.position.y+geometry.max_y*1.5;
-      pointLight.position.z = object.position.z+geometry.max_z * 2;
+      pointLight.position.x = bed.x+geometry.center_x;
+      pointLight.position.y = bed.y+geometry.max_y*1.5;
+      pointLight.position.z = geometry.max_z * 2;
     } else {
       // set to any valid position so it doesn't fail before geometry is available
       camera.position.y = -70;
@@ -758,13 +759,9 @@ Thingiview = function(containerId) {
       // scene.removeObject(object);      
 
       // don't remove old object
-      if (object) {
-//        scene.removeObject(object);        
-        // object.geometry = geometry;
-        // object.materials = [material];
-      }
 
-      object = new THREE.Mesh(geometry, material);      
+
+      var object = new THREE.Mesh(geometry, material);      
 
       if (objectMaterial != 'wireframe') {
         object.overdraw = true;
@@ -776,7 +773,7 @@ Thingiview = function(containerId) {
 
       object.updateMatrix();
   	  scene.addObject(object);
-      
+      objects.push(object);
       sceneLoop();
     }
   }
