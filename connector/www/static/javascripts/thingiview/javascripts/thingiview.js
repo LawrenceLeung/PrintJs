@@ -546,14 +546,8 @@ Thingiview = function(containerId) {
 
       // look at the center of the object
       camera.target.position.set(object.position.x, object.position.y, object.position.z);
-      
-      // set camera position to center of sphere
-  //    camera.position.x = geometry.center_x;
-  //    camera.position.y = geometry.center_y;
-  //    camera.position.z = geometry.center_z;
 
-      // find distance to center
-      distance = geometry.boundingSphere.radius / Math.sin((camera.fov/2) * (Math.PI / 180));
+      distance = (bed.x+bed.y) / 4;
       
       cameraPolar.r=distance*2.0;
       
@@ -581,14 +575,11 @@ Thingiview = function(containerId) {
     log("loading array...");
     geometry = new STLGeometry(array);
     loadObjectGeometry();
-    scope.setRotation(false);
-    scope.setRotation(true);
     scope.centerCamera();
     log("finished loading " + geometry.faces.length + " faces.");
   }
 
   this.newWorker = function(cmd, param) {
-    scope.setRotation(false);
   	
     var worker = new WorkerFacade(thingiurlbase + '/thingiloader.js');
     
@@ -601,8 +592,6 @@ Thingiview = function(containerId) {
         progressBar.innerHTML = '';
         progressBar.style.display = 'none';
 
-        scope.setRotation(false);
-        scope.setRotation(true);
         log("finished loading " + geometry.faces.length + " faces.");
         scope.centerCamera();
       } else if (event.data.status == "complete_points") {
@@ -635,8 +624,6 @@ Thingiview = function(containerId) {
         progressBar.innerHTML = '';
         progressBar.style.display = 'none';
 
-        scope.setRotation(false);
-        scope.setRotation(true);
         log("finished loading " + event.data.content[0].length + " points.");
         // scope.centerCamera();
       } else if (event.data.status == "progress") {
