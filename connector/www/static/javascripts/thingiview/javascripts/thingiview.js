@@ -291,11 +291,11 @@ Thingiview = function(containerId) {
 	  } else {
 		  // highlight
 		// TODO: improve this abstraction
-		var position=$("#viewer").position();
+		var position=$("#viewer").offset();
+	  	mouseX = ( (event.pageX-position.left) / $("#viewer").width() ) * 2 - 1;
+		mouseY = - ( (event.pageY-position.top) / $("#viewer").height() ) * 2 + 1;
 		
-	  	mouseX = ( (event.clientX-position.left) / $("#viewer").width() ) * 2 - 1;
-		mouseY = - ( (event.clientY-position.top) / $("#viewer").height() ) * 2 + 1;
-		var vector = new THREE.Vector3( mouseX, mouseY, 0.5 );
+		var vector = new THREE.Vector3( mouseX, mouseY, 0 );
 		projector.unprojectVector( vector, camera );
 
 		var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
