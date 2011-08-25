@@ -71,6 +71,8 @@ Thingiview = function(containerId) {
   
   var highlightColor=0xAA6666;
   
+  var selectedObject=null;
+  
   
   var axis;
 
@@ -187,7 +189,7 @@ Thingiview = function(containerId) {
     // container.addEventListener('resize', onContainerResize(), false);
 
     // renderer.domElement.addEventListener('mousemove',      onRendererMouseMove,     false);    
-  	document.addEventListener('mousemove',      onRendererMouseMove,     false);    
+  	document.addEventListener('mousemove',      this.onRendererMouseMove,     false);    
     renderer.domElement.addEventListener('mouseover',      onRendererMouseOver,     false);
     renderer.domElement.addEventListener('mouseout',       onRendererMouseOut,      false);
   	renderer.domElement.addEventListener('mousedown',      onRendererMouseDown,     false);
@@ -275,21 +277,8 @@ Thingiview = function(containerId) {
 
   	cameraRotationOnMouseDown={angle:cameraPolar.angle,zenith:cameraPolar.zenith};
   }
-
-  onRendererMouseMove = function(event) {
-
-    if (mouseDown) {
-  	  var mouseX = event.clientX - windowHalfX,
-  	  	arot = (mouseX - mouseXOnMouseDown) * mouseAngleRotationStep,
-  	    mouseY = event.clientY - windowHalfY,
-  	    zrot = (mouseY - mouseYOnMouseDown) * mouseZenithRotationStep;
-  	  
-  	  cameraPolar.angle=cameraRotationOnMouseDown.angle-arot;
-  	  
-  	  // todo: roll over
-  	  cameraPolar.zenith=cameraRotationOnMouseDown.zenith-zrot; 
-	  } else {
-		  // highlight
+  
+  function rayFromMouseEvent(event){
 		// TODO: improve this abstraction
 		var position=$("#viewer").offset();
 	  	mouseX = ( (event.pageX-position.left) / $("#viewer").width() ) * 2 - 1;
@@ -298,13 +287,40 @@ Thingiview = function(containerId) {
 		var vector = new THREE.Vector3( mouseX, mouseY, 0 );
 		projector.unprojectVector( vector, camera );
 
-		var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
+		return new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
+  }
 
+  this.onRendererMouseMove = function(event) {
+
+    if (mouseDown) {
+    	if (selectedObject){ // translate object
+        	var ray =rayFromMouseEvent(event);
+        	var intersects=ray.intersectObject(plane);
+    		if (intersects.length>0){
+    			object.position.x=intersects[0].point.x;
+    			object.position.y=intersects[0].point.y;
+    		}
+    		
+    		
+    	} else { //pan
+	  	  var mouseX = event.clientX - windowHalfX,
+	  	  	arot = (mouseX - mouseXOnMouseDown) * mouseAngleRotationStep,
+	  	    mouseY = event.clientY - windowHalfY,
+	  	    zrot = (mouseY - mouseYOnMouseDown) * mouseZenithRotationStep;
+	  	  
+	  	  cameraPolar.angle=cameraRotationOnMouseDown.angle-arot;
+	  	  
+	  	  // todo: roll over
+	  	  cameraPolar.zenith=cameraRotationOnMouseDown.zenith-zrot; 
+    	}
+     } else {
+		// highlight
+    	var ray =rayFromMouseEvent(event);
 		var intersects = ray.intersectObject( object );
 		if (intersects.length>0){
-			object.materials[ 0 ].color.setHex( highlightColor );
+			scope.selectObject(object);
 		} else {
-			object.materials[ 0 ].color.setHex( objectColor );
+			scope.selectObject(null);
 		}
 	  }
   }
@@ -415,6 +431,19 @@ Thingiview = function(containerId) {
     }
     
     sceneLoop();
+  }
+  
+  // set selected object
+  this.selectObject=function(object){
+	  if (object!=null){
+			object.materials[ 0 ].color.setHex( highlightColor );
+	  } else {
+		  if (selectedObject){
+			  selectedObject.materials[ 0 ].color.setHex( objectColor );			  
+		  }
+	  }
+	  selectedObject=object;	  
+	  
   }
 
   this.getRotation = function() {
