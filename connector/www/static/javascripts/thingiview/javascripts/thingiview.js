@@ -605,7 +605,7 @@ Thingiview = function(containerId) {
 
       directionalLight.position.x = 0;
       directionalLight.position.y = 0;
-      directionalLight.position.z = object.position.z+geometry.max_z;
+      directionalLight.position.z = geometry.max_z;
 
       pointLight.position.x = bed.x+geometry.center_x;
       pointLight.position.y = bed.y+geometry.max_y*1.5;
