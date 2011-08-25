@@ -388,9 +388,9 @@ Thingiview = function(containerId) {
 
       var camPos=polarToCartesian(cameraPolar);
       
-      camera.position.set(camPos.x+object.position.x,camPos.y+object.position.y,camPos.z+object.position.z);
+      camera.position.set(camPos.x+camera.target.position.x,camPos.y+camera.target.position.y,camPos.z+camera.target.position.z);
       
-      var toObject=object.position.clone().subSelf(camera.position);
+      var toObject=camera.target.position.clone().subSelf(camera.position);
       
       var toLeft=new THREE.Vector3(-toObject.y,toObject.x,0);
       // generate the cam up vector!
@@ -590,8 +590,8 @@ Thingiview = function(containerId) {
       // Using method from http://msdn.microsoft.com/en-us/library/bb197900(v=xnagamestudio.10).aspx
       // log("bounding sphere radius = " + geometry.boundingSphere.radius);
 
-      // look at the center of the object
-      camera.target.position.set(object.position.x, object.position.y, object.position.z);
+      // look at the center of the bed
+      camera.target.position.set(bed.x/2, bed.y/2, 0);
 
       distance = (bed.x+bed.y) / 4;
       
