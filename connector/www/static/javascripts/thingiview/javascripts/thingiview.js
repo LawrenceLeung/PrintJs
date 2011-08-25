@@ -69,6 +69,9 @@ Thingiview = function(containerId) {
   
   var bed={x:200,y:200};
   
+  var highlightColor=0xAA6666;
+  
+  
   var axis;
 
   // convert polar to cartesian
@@ -184,7 +187,7 @@ Thingiview = function(containerId) {
     // container.addEventListener('resize', onContainerResize(), false);
 
     // renderer.domElement.addEventListener('mousemove',      onRendererMouseMove,     false);    
-  	window.addEventListener('mousemove',      onRendererMouseMove,     false);    
+  	document.addEventListener('mousemove',      onRendererMouseMove,     false);    
     renderer.domElement.addEventListener('mouseover',      onRendererMouseOver,     false);
     renderer.domElement.addEventListener('mouseout',       onRendererMouseOut,      false);
   	renderer.domElement.addEventListener('mousedown',      onRendererMouseDown,     false);
@@ -287,8 +290,22 @@ Thingiview = function(containerId) {
   	  cameraPolar.zenith=cameraRotationOnMouseDown.zenith-zrot; 
 	  } else {
 		  // highlight
-		  mouseX=event.clientX;
-		  mouseY=event.clientY;
+		// TODO: improve this abstraction
+		var position=$("#viewer").position();
+		
+	  	mouseX = ( (event.clientX-position.left) / $("#viewer").width() ) * 2 - 1;
+		mouseY = - ( (event.clientY-position.top) / $("#viewer").height() ) * 2 + 1;
+		var vector = new THREE.Vector3( mouseX, mouseY, 0.5 );
+		projector.unprojectVector( vector, camera );
+
+		var ray = new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
+
+		var intersects = ray.intersectObject( object );
+		if (intersects.length>0){
+			object.materials[ 0 ].color.setHex( highlightColor );
+		} else {
+			object.materials[ 0 ].color.setHex( objectColor );
+		}
 	  }
   }
 
