@@ -8,6 +8,7 @@ Thingiview = function(containerId) {
   var camera   = null;
   var scene    = null;
   var renderer = null;
+  var projector = new THREE.Projector();
   var object   = null ;
   var plane    = null;
   
@@ -65,6 +66,8 @@ Thingiview = function(containerId) {
   var objectColor = 0xffffff;
   var showPlane = true;
   var isWebGl = false;
+  
+  var bed={x:200,y:200};
   
   var axis;
 
@@ -282,6 +285,10 @@ Thingiview = function(containerId) {
   	  
   	  // todo: roll over
   	  cameraPolar.zenith=cameraRotationOnMouseDown.zenith-zrot; 
+	  } else {
+		  // highlight
+		  mouseX=event.clientX;
+		  mouseY=event.clientY;
 	  }
   }
 
@@ -348,15 +355,14 @@ Thingiview = function(containerId) {
 
       var camPos=polarToCartesian(cameraPolar);
       
-      camera.position.set(camPos.x,camPos.y,camPos.z);
+      camera.position.set(camPos.x+object.position.x,camPos.y+object.position.y,camPos.z+object.position.z);
       
-      var toObject=object.position.subSelf(camera.position);
+      var toObject=object.position.clone().subSelf(camera.position);
       
       var toLeft=new THREE.Vector3(-toObject.y,toObject.x,0);
       // generate the cam up vector!
       camera.up=toObject.crossSelf(toLeft).normalize();
       camera.updateMatrix();
-      object.updateMatrix();
       
       if (showPlane) {
         plane.updateMatrix();
@@ -539,11 +545,7 @@ Thingiview = function(containerId) {
       // log("bounding sphere radius = " + geometry.boundingSphere.radius);
 
       // look at the center of the object
-      camera.target.position.x = geometry.center_x;
-      camera.target.position.y = geometry.center_y;
-      camera.target.position.z = geometry.center_z;
-      
-      
+      camera.target.position.set(object.position.x, object.position.y, object.position.z);
       
       // set camera position to center of sphere
   //    camera.position.x = geometry.center_x;
@@ -552,7 +554,6 @@ Thingiview = function(containerId) {
 
       // find distance to center
       distance = geometry.boundingSphere.radius / Math.sin((camera.fov/2) * (Math.PI / 180));
-
       
       cameraPolar.r=distance*2.0;
       
@@ -561,13 +562,13 @@ Thingiview = function(containerId) {
       // scope.setCameraZoom(-distance/1.5);
       scope.setCameraZoom(-distance/1.9);
 
-      directionalLight.position.x = geometry.min_y * 2;
-      directionalLight.position.y = -geometry.min_y * 2;
-      directionalLight.position.z = geometry.max_z;
+      directionalLight.position.x = object.position.x+geometry.min_y * 2;
+      directionalLight.position.y = object.position.y-geometry.min_y * 2;
+      directionalLight.position.z = object.position.z+geometry.max_z;
 
-      pointLight.position.x = geometry.center_x;
-      pointLight.position.y = geometry.max_y*1.5;
-      pointLight.position.z = geometry.max_z * 2;
+      pointLight.position.x = object.position.x+geometry.center_x;
+      pointLight.position.y = object.position.y+geometry.max_y*1.5;
+      pointLight.position.z = object.position.z+geometry.max_z * 2;
     } else {
       // set to any valid position so it doesn't fail before geometry is available
       camera.position.y = -70;
@@ -622,6 +623,9 @@ Thingiview = function(containerId) {
 
         particles = new THREE.ParticleSystem( geometry, material );
         particles.sortParticles = true;
+        
+        particles.position.x=bed.x/2;
+        particles.position.y=bed.y/2;
         particles.updateMatrix();
         scene.addObject( particles );
                                 
@@ -690,8 +694,14 @@ Thingiview = function(containerId) {
   }
 
   function loadPlaneGeometry() {
+    var bedX=bed.x||200,
+    	bedY=bed.y||200;
+	  
     // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines in canvas renderer...
-    plane = new THREE.Mesh(new Plane(200, 100, 20, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
+    plane = new THREE.Mesh(new THREE.PlaneGeometry(bedX, bedY, 20, 20), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
+    plane.position.x=bedX/2.0;
+    plane.position.y=bedY/2.0;
+    
     scene.addObject(plane);
   }
 
@@ -721,19 +731,19 @@ Thingiview = function(containerId) {
         // object.materials = [material];
       }
 
-      object = new THREE.Mesh(geometry, material);
-  		scene.addObject(object);
+      object = new THREE.Mesh(geometry, material);      
 
       if (objectMaterial != 'wireframe') {
         object.overdraw = true;
         object.doubleSided = true;
       }
       
-      object.updateMatrix();
-    
-      targetXRotation = 0;
-      targetYRotation = 0;
+      object.translateX(bed.x/2);
+      object.translateY(bed.y/2);
 
+      object.updateMatrix();
+  	  scene.addObject(object);
+      
       sceneLoop();
     }
   }
