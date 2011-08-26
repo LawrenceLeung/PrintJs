@@ -231,13 +231,22 @@ Thingiview = function(containerId) {
     } else {
       rolled = event.wheelDelta;
     }
-
-    if (rolled > 0) {
-      // zoom in
-      cameraPolar.r=cameraPolar.r*(1.0-zoomPercent);
+    
+    if (mouseDown && selectedObject) {
+      var shift = cameraPolar.r/100;
+      if (rolled < 0) {
+        shift = shift*-1
+      }
+      selectedObject.position.z = selectedObject.position.z + shift
+      updateSelectedDisplay();
     } else {
-      // zoom out
-      cameraPolar.r=cameraPolar.r*(1.0+zoomPercent);
+      if (rolled > 0) {
+        // zoom in
+        cameraPolar.r=cameraPolar.r*(1.0-zoomPercent);
+      } else {
+        // zoom out
+        cameraPolar.r=cameraPolar.r*(1.0+zoomPercent);
+      }
     }
   }
 
@@ -259,6 +268,7 @@ Thingiview = function(containerId) {
       // log('starting loop');
       timer = setInterval(sceneLoop, 1000/60);
     }
+    
   }
 
   onRendererMouseDown = function(event) {
@@ -271,6 +281,12 @@ Thingiview = function(containerId) {
     } else {
       wasRotating = false;
     }
+    
+    var ray =rayFromMouseEvent(event);
+  	var intersects = ray.intersectObjects( objects );
+	  if (intersects.length==0){
+      scope.selectObject(null);
+	  }
     
   	mouseXOnMouseDown = event.clientX - windowHalfX;
   	mouseYOnMouseDown = event.clientY - windowHalfY;
@@ -288,6 +304,15 @@ Thingiview = function(containerId) {
 		projector.unprojectVector( vector, camera );
 
 		return new THREE.Ray( camera.position, vector.subSelf( camera.position ).normalize() );
+  }
+  
+  function updateSelectedDisplay() {
+    document.getElementById('object-position-x').value = selectedObject.position.x;    
+    document.getElementById('object-position-y').value = selectedObject.position.y;
+    document.getElementById('object-position-z').value = selectedObject.position.z;
+    document.getElementById('object-scale-x').value = selectedObject.scale.x;
+    document.getElementById('object-scale-y').value = selectedObject.scale.y;
+    document.getElementById('object-scale-z').value = selectedObject.scale.z;
   }
 
   this.onRendererMouseMove = function(event) {
@@ -313,15 +338,16 @@ Thingiview = function(containerId) {
 	  	  // todo: roll over
 	  	  cameraPolar.zenith=cameraRotationOnMouseDown.zenith-zrot; 
     	}
-     } else {
+    } else {
 		// highlight
     	var ray =rayFromMouseEvent(event);
     	var intersects = ray.intersectObjects( objects );
-		if (intersects.length>0){
-				scope.selectObject(intersects[0].object);
-		} else {
-				scope.selectObject(null);
-		}
+		  if (intersects.length>0){
+		  		scope.selectObject(intersects[0].object);
+        updateSelectedDisplay();
+      //} else {
+        //scope.selectObject(null);
+		  }
     	
 	  }
   }
@@ -704,6 +730,53 @@ Thingiview = function(containerId) {
     alertBox.style.display = 'block';
     
     // log(msg);
+  }
+  
+  function ajax_loader(show) {
+    // not currently showing, because it doesn't wait for rendering to finish
+    var image = document.getElementById('ajax-loader');
+    if (image) {
+      if (show) {
+        image.style.display = "block"
+      } else {
+        image.style.display = "none"
+      }
+    }
+  }
+  
+  this.scaleSelected = function(event) {
+    if (event.keyCode == 13 || event.keyCode == 9) {
+      ajax_loader(true);
+      var value = parseFloat(event.target.value);
+      if (event.target.id.match(/x$/)) {
+        selectedObject.scale.set(value, selectedObject.scale.y, selectedObject.scale.z);
+      } else if (event.target.id.match(/y$/)) {
+        selectedObject.scale.set(selectedObject.scale.x, value, selectedObject.scale.z);
+      } else if (event.target.id.match(/z$/)) {
+        selectedObject.scale.set(selectedObject.scale.x, selectedObject.scale.y, value);
+      }
+      
+      updateSelectedDisplay();
+      ajax_loader(false);
+      return false;
+    }
+  }
+  
+  this.moveSelected = function(event) {
+    if (event.keyCode == 13 || event.keyCode == 9) {
+      ajax_loader(true);
+      var value = parseFloat(event.target.value);
+      if (event.target.id.match(/x$/)) {
+        selectedObject.position.x = value
+      } else if (event.target.id.match(/y$/)) {
+        selectedObject.position.y = value
+      } else if (event.target.id.match(/z$/)) {
+        selectedObject.position.z = value
+      }
+      updateSelectedDisplay();
+      ajax_loader(false);
+      return false;
+    }
   }
   
   function loadAxes(size){
