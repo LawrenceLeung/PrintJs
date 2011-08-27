@@ -61,7 +61,7 @@ Thingiview = function(containerId) {
   var cameraView = 'diagonal';
   var cameraZoom = 0;
   var rotate = false;
-  var backgroundColor = '#606060';
+  var backgroundColor = '#333333';
   var objectMaterial = 'solid';
   var objectColor = 0xffffff;
   var showPlane = true;
@@ -69,9 +69,11 @@ Thingiview = function(containerId) {
   
   var bed={x:200,y:200};
   
-  var highlightColor=0xAA6666;
+  var highlightColor=0x6666CC,
+  		selectedColor=0xAA6666;
   
-  var selectedObject=null;
+  var selectedObject=null,
+  		highlightedObject=null; // hover
   
   
   var axis;
@@ -282,11 +284,14 @@ Thingiview = function(containerId) {
       wasRotating = false;
     }
     
+    // deselect
     var ray =rayFromMouseEvent(event);
   	var intersects = ray.intersectObjects( objects );
-	  if (intersects.length==0){
+	if (intersects.length==0){
       scope.selectObject(null);
-	  }
+	} else {
+		scope.selectObject(objects[0]);
+	}
     
   	mouseXOnMouseDown = event.clientX - windowHalfX;
   	mouseYOnMouseDown = event.clientY - windowHalfY;
@@ -339,16 +344,17 @@ Thingiview = function(containerId) {
 	  	  cameraPolar.zenith=cameraRotationOnMouseDown.zenith-zrot; 
     	}
     } else {
-		// highlight
-    	var ray =rayFromMouseEvent(event);
-    	var intersects = ray.intersectObjects( objects );
-		  if (intersects.length>0){
-		  		scope.selectObject(intersects[0].object);
-        updateSelectedDisplay();
-      //} else {
-        //scope.selectObject(null);
-		  }
-    	
+
+        if (!selectedObject){
+            // highlight
+            var ray =rayFromMouseEvent(event);
+            var intersects = ray.intersectObjects( objects );
+            if (intersects.length>0){
+                scope.highlightObject(intersects[0].object);
+            } else {
+                scope.highlightObject(null);
+            }
+        }
 	  }
   }
 
@@ -463,15 +469,29 @@ Thingiview = function(containerId) {
   // set selected object
   this.selectObject=function(object){
 	  if (object!=null){
-			object.materials[ 0 ].color.setHex( highlightColor );
+			object.materials[ 0 ].color.setHex( selectedColor );
 	  } else {
 		  if (selectedObject){
 			  selectedObject.materials[ 0 ].color.setHex( objectColor );			  
 		  }
 	  }
-	  selectedObject=object;	  
 	  
+	  selectedObject=object;	  	  
   }
+  
+  this.highlightObject=function(object){
+	  
+	  // restore unhighlighted color
+	  if (highlightedObject!=null && highlightedObject!=object){		
+		 highlightedObject.materials[ 0 ].color.setHex( (highlightedObject===selectedObject) ? selectedColor: objectColor );
+	  } 
+	  
+	  if (object){
+		  object.materials[ 0 ].color.setHex( highlightColor )
+	  }
+	  highlightedObject=object;
+  }
+  
 
   this.getRotation = function() {
     return rotateTimer !== null;
@@ -783,7 +803,7 @@ Thingiview = function(containerId) {
 	var size=size||50;
     axes={x: new THREE.Mesh( new THREE.CylinderGeometry( 6, .5, .5, size, 0, 0 ), new THREE.MeshBasicMaterial( { color: 0x993333 } ) ),
           y: new THREE.Mesh( new THREE.CylinderGeometry( 6, .5, .5, size, 0, 0 ), new THREE.MeshBasicMaterial( { color: 0x339933 } ) ),
-    	  z: new THREE.Mesh( new THREE.CylinderGeometry( 6, .5, .5, size, 0, 0 ), new THREE.MeshBasicMaterial( { color: 0x333399 } ) ),        	
+    	  z: new THREE.Mesh( new THREE.CylinderGeometry( 6, .5, .5, size, 0, 0 ), new THREE.MeshBasicMaterial( { color: 0x333399 } ) )      	
           };
     
     axes.x.rotation.y=Math.PI/2.0;
