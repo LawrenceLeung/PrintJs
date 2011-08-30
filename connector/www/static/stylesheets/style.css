@@ -113,6 +113,15 @@ input[type=button] {
   z-index: 40;
 }
 
+#help{
+  position:fixed;
+  top:0px;
+  right: 0px;
+  width: 100;
+  height: 30px;
+  z-index:40;
+}
+
 #dropzone, #viewer {
   width:100%;
   height:100%;
@@ -151,9 +160,17 @@ input[type=button] {
      width:90%;
    }
    
-   #debug-pane{
-    display:none
-   }
+#debug-pane{
+    display:none;
+    width: 450px;
+    background-color:black;
+    border: 1px solid gray;
+}
+
+.ui-dialog-titlebar-close {
+    float:right;
+}
+
 
 #ajax-loader {
   position: absolute;

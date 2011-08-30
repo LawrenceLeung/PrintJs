@@ -90,8 +90,7 @@ $(document).ready(function() {
   
   
   $("#enable-debug-pane").click(function(){
-    $("#debug-pane").show();
-    $("#enable-debug-pane").hide();
+	  $("#debug-pane").dialog({minWidth:450});	  
   });
   
 });
